@@ -32,8 +32,8 @@ export function preloadTranslation(
     provideTransloco({
       config: {
         availableLangs: languageList,
-        defaultLang: "zh-TW",
-        fallbackLang: "zh-TW",
+        defaultLang: "en-US",
+        fallbackLang: "en-US",
         reRenderOnLangChange: true,
         prodMode: true,
       },

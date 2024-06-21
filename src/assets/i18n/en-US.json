@@ -1,0 +1,17 @@
+{
+  "filterMenu": {
+    "setting": "Filter setting",
+    "noFilter": "No filter",
+    "condition": "Filter condition",
+    "newFilter": "New filter",
+    "clear": "Clear filter",
+    "pleaseEnter": "Please Enter",
+    "selectDateTime": "Select Date Time",
+    "startDateTime": "Start Date Time",
+    "endDateTime": "End Date Time",
+    "before": "Before",
+    "after": "After",
+    "at": "At",
+    "between": "Between"
+  }
+}

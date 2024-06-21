@@ -1,0 +1,57 @@
+<ng-container *transloco="let t">
+  <button
+    mat-flat-button
+    [matMenuTriggerFor]="setFilter"
+    #childTrigger="matMenuTrigger"
+    class="custom-select"
+  >
+    <div>{{ t("filterMenu.newFilter") }}</div>
+    <div class="icon-direction-down"></div>
+  </button>
+
+  <mat-menu #setFilter="matMenu" class="filter-option">
+    <ng-container *ngFor="let filter of filters; let i = index">
+      <button
+        mat-menu-item
+        (click)="onSetFilter(childTrigger, filter, i)"
+        [disabled]="filter.isSet"
+      >
+        {{ t(filter.label) }}
+      </button>
+    </ng-container>
+  </mat-menu>
+
+  <form [formGroup]="filterForm">
+    <ng-container
+      formArrayName="filters"
+      *ngFor="let filter of filtersControl; let i = index"
+      [ngSwitch]="findFilter(i).type"
+    >
+      <!-- Auto Complete Filter -->
+      <mat-form-field
+        appearance="outline"
+        [formGroupName]="i"
+        *ngSwitchCase="'autoComplete'"
+      >
+        <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+        <input
+          matInput
+          [formControlName]="findFilter(i).name"
+          [matAutocomplete]="auto"
+          placeholder="{{ t('filterMenu.pleaseEnter') }} {{
+            t(findFilter(i).label)
+          }}"
+          maxlength="50"
+        />
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+          <mat-option
+            *ngFor="let option of autoCompletefilteredOptionsAPI[i] | async"
+            [value]="option"
+          >
+            {{ option }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </ng-container>
+  </form>
+</ng-container>
