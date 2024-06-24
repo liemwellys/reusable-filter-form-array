@@ -1,8 +1,9 @@
-import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { mockDisctrict, mockName } from '../mock-data/filter-mock-data';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class ReusableFilterService {
   constructor() {}
@@ -15,7 +16,7 @@ export class ReusableFilterService {
    */
   getMockData(tableName: string, mockData: string): Observable<string[]> {
     switch (tableName) {
-      case "member":
+      case 'member':
         return this.memberMockData(mockData);
       default: {
         return of([]);
@@ -30,10 +31,10 @@ export class ReusableFilterService {
    */
   memberMockData(mockData: string): Observable<string[]> {
     switch (mockData) {
-      case "city":
-        return of([]);
-      case "district":
-        return of([]);
+      case 'name':
+        return of(mockName);
+      case 'district':
+        return of(mockDisctrict);
       default:
         return of([]);
     }

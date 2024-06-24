@@ -1,4 +1,11 @@
 {
+  "member": {
+    "name": "Name",
+    "address": "Address",
+    "district": "District",
+    "city": "City/County",
+    "createdAt": "Created At"
+  },
   "filterMenu": {
     "setting": "Filter setting",
     "noFilter": "No filter",

@@ -5,8 +5,7 @@
     #childTrigger="matMenuTrigger"
     class="custom-select"
   >
-    <div>{{ t("filterMenu.newFilter") }}</div>
-    <div class="icon-direction-down"></div>
+    <div>{{ t('filterMenu.newFilter') }}</div>
   </button>
 
   <mat-menu #setFilter="matMenu" class="filter-option">
@@ -27,31 +26,48 @@
       *ngFor="let filter of filtersControl; let i = index"
       [ngSwitch]="findFilter(i).type"
     >
-      <!-- Auto Complete Filter -->
-      <mat-form-field
-        appearance="outline"
-        [formGroupName]="i"
-        *ngSwitchCase="'autoComplete'"
-      >
-        <mat-label>{{ t(findFilter(i).label) }}</mat-label>
-        <input
-          matInput
-          [formControlName]="findFilter(i).name"
-          [matAutocomplete]="auto"
-          placeholder="{{ t('filterMenu.pleaseEnter') }} {{
-            t(findFilter(i).label)
-          }}"
-          maxlength="50"
-        />
-        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option
-            *ngFor="let option of autoCompletefilteredOptionsAPI[i] | async"
-            [value]="option"
-          >
-            {{ option }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+      <div class="filter">
+        <!-- Auto Complete Filter -->
+        <mat-form-field appearance="outline" [formGroupName]="i" *ngSwitchCase="'autoComplete'">
+          <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+          <input
+            matInput
+            [formControlName]="findFilter(i).name"
+            [matAutocomplete]="auto"
+            placeholder="{{ t('filterMenu.pleaseEnter') }} {{ t(findFilter(i).label) }}"
+            maxlength="50"
+          />
+          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            <mat-option
+              *ngFor="let option of autoCompletefilteredOptionsAPI[i] | async"
+              [value]="option"
+            >
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <!-- String Filter -->
+        <mat-form-field appearance="outline" [formGroupName]="i" *ngSwitchCase="'string'">
+          <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+          <input
+            matInput
+            [formControlName]="findFilter(i).name"
+            placeholder="{{ t('filterMenu.pleaseEnter') }} {{ t(findFilter(i).label) }}"
+            maxlength="50"
+          />
+        </mat-form-field>
+
+        <!-- Multi Selection Filter -->
+        <mat-form-field appearance="outline" [formGroupName]="i" *ngSwitchCase="'selection'">
+          <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+          <mat-select [formControlName]="findFilter(i).name">
+            <mat-option *ngFor="let option of findFilter(i).options" [value]="option.value">
+              {{ t(option.name) }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </ng-container>
   </form>
 </ng-container>

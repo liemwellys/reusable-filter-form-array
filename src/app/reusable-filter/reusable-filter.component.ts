@@ -1,24 +1,15 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnInit,
-  Output,
-} from "@angular/core";
-import {
-  AutoCompleteFilteredOption,
-  Filter,
-} from "../models/reusable-filter.model";
-import { MatMenuTrigger } from "@angular/material/menu";
-import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
-import { debounceTime, map, Observable, of, startWith, switchMap } from "rxjs";
-import { ReusableFilterService } from "./reusable-filter.service";
-import { EventEmitter } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnInit, Output } from '@angular/core';
+import { AutoCompleteFilteredOption, Filter } from '../models/reusable-filter.model';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { debounceTime, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { ReusableFilterService } from './reusable-filter.service';
+import { EventEmitter } from '@angular/core';
 
 @Component({
-  selector: "app-reusable-filter",
-  templateUrl: "./reusable-filter.component.html",
-  styleUrls: ["./reusable-filter.component.scss"],
+  selector: 'app-reusable-filter',
+  templateUrl: './reusable-filter.component.html',
+  styleUrls: ['./reusable-filter.component.scss'],
 })
 export class ReusableFilterComponent<T> implements OnInit {
   filterForm: FormGroup;
@@ -26,14 +17,14 @@ export class ReusableFilterComponent<T> implements OnInit {
   autoCompletefilteredOptionsAPI: AutoCompleteFilteredOption = {};
 
   get filtersControl() {
-    return (this.filterForm.get("filters") as FormArray).controls;
+    return (this.filterForm.get('filters') as FormArray).controls;
   }
 
   /**
    * The name of the table to filter. Only used for fetching mock data.
    * Can be omitted if not needed in the future.
    */
-  @Input() tableName = "";
+  @Input() tableName = '';
 
   /** The list of filters to be displayed in the filter menu. */
   @Input() filters: Filter[];
@@ -65,11 +56,7 @@ export class ReusableFilterComponent<T> implements OnInit {
    * @param filter - The filter object to be set.
    * @param index - The index of the filter in the filters array.
    */
-  onSetFilter(
-    setFilterTrigger: MatMenuTrigger,
-    filter: Filter,
-    index: number
-  ): void {
+  onSetFilter(setFilterTrigger: MatMenuTrigger, filter: Filter, index: number): void {
     // update isSet property of the filter object
     filter.isSet = true;
     this.filters[index] = filter;
@@ -89,15 +76,15 @@ export class ReusableFilterComponent<T> implements OnInit {
 
   assignToFormGroup(filter: Filter, index: number): void {
     switch (filter.type) {
-      case "autoComplete":
+      case 'autoComplete':
         this.assignStringFilter(index, filter, true);
         break;
-      // case 'string':
-      //   this.assignStringFilter(index, filter, false);
-      //   break;
-      // case 'selection':
-      //   this.assignSelectionFilter(filter);
-      //   break;
+      case 'string':
+        this.assignStringFilter(index, filter, false);
+        break;
+      case 'selection':
+        this.assignSelectionFilter(filter);
+        break;
       // case 'time':
       //   this.assignTimeFilter(filter);
       //   break;
@@ -120,18 +107,13 @@ export class ReusableFilterComponent<T> implements OnInit {
    * @param index - The index of the control in the filtersControl array.
    * @param controlName - The name of the control.
    */
-  manageAutoCompleteOptionsControlAPI(
-    index: number,
-    controlName: string
-  ): void {
+  manageAutoCompleteOptionsControlAPI(index: number, controlName: string): void {
     const control = this.filtersControl[index].get(controlName);
     this.autoCompletefilteredOptionsAPI[index] = control
       ? control.valueChanges.pipe(
-          startWith(""),
+          startWith(''),
           debounceTime(300),
-          switchMap((value) =>
-            this._filterAutoCompleteOptionsMockAPI(value || "", controlName)
-          )
+          switchMap((value) => this._filterAutoCompleteOptionsMockAPI(value || '', controlName))
         )
       : of([]);
   }
@@ -143,38 +125,44 @@ export class ReusableFilterComponent<T> implements OnInit {
    * @param dataType - The requested mock data of the options.
    * @returns An Observable that emits an array of filtered options.
    */
-  private _filterAutoCompleteOptionsMockAPI(
-    value: string,
-    dataType: string
-  ): Observable<string[]> {
-    if (value === "" || value.length < 4) {
-      return of([]);
-    }
+  private _filterAutoCompleteOptionsMockAPI(value: string, dataType: string): Observable<string[]> {
     const filterValue = value.toLowerCase();
 
-    return this._reusableFilterService
-      .getMockData(this.tableName, dataType)
-      .pipe(
-        map((res) => {
-          return res.filter((option) =>
-            option.toLowerCase().includes(filterValue)
-          );
-        })
-      );
+    return this._reusableFilterService.getMockData(this.tableName, dataType).pipe(
+      map((res) => {
+        return res.filter((option) => option.toLowerCase().includes(filterValue));
+      })
+    );
   }
 
-  assignStringFilter(
-    index: number,
-    filter: Filter,
-    isAutoComplete: boolean
-  ): void {
+  /**
+   * Assigns a string filter to the specified index in the filtersControl array.
+   * If isAutoComplete is true, it also manages the autocomplete options control for the filter.
+   *
+   * @param index - The index in the filtersControl array where the filter should be assigned.
+   * @param filter - The AdTableFilter object representing the filter to be assigned.
+   * @param isAutoComplete - A boolean indicating whether the filter should have autocomplete options.
+   */
+  assignStringFilter(index: number, filter: Filter, isAutoComplete: boolean): void {
     const fg = new FormGroup({
-      [filter.name]: new FormControl("", [Validators.required]),
+      [filter.name]: new FormControl('', [Validators.required]),
     });
     this.filtersControl.push(fg);
     if (isAutoComplete) {
-      const controlName = this.findFilter(index)?.name || "";
+      const controlName = this.findFilter(index)?.name || '';
       this.manageAutoCompleteOptionsControlAPI(index, controlName);
     }
+  }
+
+  /**
+   * Assigns a selection filter to the component.
+   *
+   * @param filter - The filter to assign.
+   */
+  assignSelectionFilter(filter: Filter): void {
+    const fg = new FormGroup({
+      [filter.name]: new FormControl(filter.options?.[0]?.value, [Validators.required]),
+    });
+    this.filtersControl.push(fg);
   }
 }
