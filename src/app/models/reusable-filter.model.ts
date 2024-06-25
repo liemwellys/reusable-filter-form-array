@@ -1,11 +1,9 @@
-import { Observable } from "rxjs";
-
 export interface FilterOption {
   name: string;
   value: string;
 }
 
-export type FilterType = "autoComplete" | "string" | "selection" | "time";
+export type FilterType = 'autoComplete' | 'string' | 'selection' | 'time';
 
 export interface Filter {
   type: FilterType;
@@ -15,8 +13,4 @@ export interface Filter {
   options?: FilterOption[];
   value?: string;
   isSet: boolean;
-}
-
-export interface AutoCompleteFilteredOption {
-  [key: number]: Observable<string[]>;
 }

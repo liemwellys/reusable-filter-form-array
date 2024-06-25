@@ -20,5 +20,8 @@
     "after": "After",
     "at": "At",
     "between": "Between"
+  },
+  "button": {
+    "apply": "Apply"
   }
 }

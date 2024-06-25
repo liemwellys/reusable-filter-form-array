@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnInit, Output } from '@angular/core';
-import { AutoCompleteFilteredOption, Filter } from '../models/reusable-filter.model';
+import { Filter } from '../models/reusable-filter.model';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, map, Observable, of, startWith, switchMap } from 'rxjs';
@@ -15,7 +15,6 @@ import dayjs from 'dayjs';
 export class ReusableFilterComponent<T> implements OnInit {
   filterForm: FormGroup;
   isSetFilterName: string[] = [];
-  // autoCompletefilteredOptionsAPI: AutoCompleteFilteredOption = {};
   autoCompleteFilteredOptionsAPI: Observable<string[]>[] = [];
 
   get filtersControl() {
@@ -52,6 +51,16 @@ export class ReusableFilterComponent<T> implements OnInit {
   }
 
   /**
+   * Capitalizes the first letter of a string.
+   *
+   * @param str - The string to capitalize.
+   * @returns The input string with the first letter capitalized.
+   */
+  capitalizeFirstLetter(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  /**
    * Sets the filter for the specified index and updates the component state.
    *
    * @param setFilterTrigger - The MatMenuTrigger used to close the filter menu.
@@ -76,6 +85,12 @@ export class ReusableFilterComponent<T> implements OnInit {
     setFilterTrigger.closeMenu();
   }
 
+  /**
+   * Assigns a filter to the form group based on its type.
+   *
+   * @param filter - The filter object to assign.
+   * @param index - The index of the filter in the array.
+   */
   assignToFormGroup(filter: Filter, index: number): void {
     switch (filter.type) {
       case 'autoComplete':
@@ -90,6 +105,35 @@ export class ReusableFilterComponent<T> implements OnInit {
       case 'time':
         this.assignTimeFilter(filter);
         break;
+    }
+  }
+
+  /**
+   * Deletes a filter at the specified index and updates the filter state.
+   * @param index - The index of the filter to delete.
+   * @param filterType - The type of the filter to delete.
+   */
+  onDeleteOneFilter(index: number, filterType: string): void {
+    const filter = this.findFilter(index);
+    const resetIdx = this.filters.findIndex((f) => f.name === filter.name);
+    this.filters[resetIdx].isSet = false;
+    this.removeControl(index, filterType);
+    this.isSetFilterName.splice(index, 1);
+  }
+
+  /**
+   * Removes a control from the filterForm at the specified index.
+   * If the filterType is 'autoComplete', it also deletes the corresponding autoCompletefilteredOptionsAPI entry.
+   *
+   * @param index - The index of the control to be removed.
+   * @param filterType - The type of the filter.
+   */
+  removeControl(index: number, filterType: string): void {
+    const control = this.filterForm.get('filters') as FormArray;
+    control.removeAt(index);
+    if (filterType === 'autoComplete') {
+      // delete this.autoCompletefilteredOptionsAPI[index];
+      this.autoCompleteFilteredOptionsAPI.splice(index, 1);
     }
   }
 
@@ -111,13 +155,6 @@ export class ReusableFilterComponent<T> implements OnInit {
    */
   manageAutoCompleteOptionsControlAPI(index: number, controlName: string): void {
     const control = this.filtersControl[index].get(controlName);
-    // this.autoCompletefilteredOptionsAPI[index] = control
-    //   ? control.valueChanges.pipe(
-    //       startWith(''),
-    //       debounceTime(300),
-    //       switchMap((value) => this._filterAutoCompleteOptionsMockAPI(value || '', controlName))
-    //     )
-    //   : of([]);
     this.autoCompleteFilteredOptionsAPI[index] = control
       ? control.valueChanges.pipe(
           startWith(''),
@@ -125,6 +162,25 @@ export class ReusableFilterComponent<T> implements OnInit {
           switchMap((value) => this._filterAutoCompleteOptionsMockAPI(value || '', controlName))
         )
       : of([]);
+  }
+
+  /**
+   * Filters the autocomplete options based on the given value and URL.
+   * @param value - The value to filter the options.
+   * @param url - The URL to fetch the options from.
+   * @returns An Observable that emits an array of filtered options.
+   */
+  private _filterAutoCompleteOptionsAPI(value: string, url: string): Observable<string[]> {
+    if (value === '' || value.length < 4) {
+      return of([]);
+    }
+    const filterValue = value.toLowerCase();
+
+    return this._reusableFilterService.getFromUrl(url).pipe(
+      map((res) => {
+        return res.filter((option) => option.toLowerCase().includes(filterValue));
+      })
+    );
   }
 
   /**
@@ -202,7 +258,7 @@ export class ReusableFilterComponent<T> implements OnInit {
    */
   assignSelectionFilter(filter: Filter): void {
     const fg = new FormGroup({
-      [filter.name]: new FormControl(filter.options?.[0]?.value, [Validators.required]),
+      [filter.name]: new FormControl(null, [Validators.required]),
     });
     this.filtersControl.push(fg);
   }
@@ -216,11 +272,78 @@ export class ReusableFilterComponent<T> implements OnInit {
     const newDate = dayjs().startOf('day').toISOString();
     const fg = new FormGroup({
       name: new FormControl(filter.name),
-      timeSelector: new FormControl(filter.options?.[0]?.value, [Validators.required]),
-      dateTime: new FormControl(new Date(newDate), [Validators.required]),
-      min: new FormControl(new Date(newDate), [Validators.required]),
-      max: new FormControl(new Date(newDate), [Validators.required]),
+      timeSelector: new FormControl(null, [Validators.required]),
+      dateTime: new FormControl(null, [Validators.required]),
+      min: new FormControl(null, [Validators.required]),
+      max: new FormControl(null, [Validators.required]),
     });
     this.filtersControl.push(fg);
+  }
+
+  /**
+   * Applies the selected filters and emits the final filter object to parent component.
+   *
+   * @param filterTrigger - The MatMenuTrigger used to close the filter menu.
+   */
+  onApplyFilter(): void {
+    // get filters raw value from filterForm
+    const filterValue = this.filterForm.getRawValue().filters;
+
+    // create the final filter object
+    const finalFilter = filterValue.reduce((finalFilterObj: any, f: any) => {
+      // create a copy of the filter object
+      let copy = { ...f };
+
+      // remap the time filter if the timeSelector property is present
+      if (f.timeSelector) {
+        copy = this.remapTimeFilter(copy, f);
+      }
+
+      // return the final filter object
+      return { ...finalFilterObj, ...copy };
+    }, {});
+
+    this.applyFilter.emit(finalFilter);
+    console.log(finalFilter);
+  }
+
+  /**
+   * Remaps the time filter based on the provided parameters.
+   * @param copy - The object to be remapped.
+   * @param f - The filter object containing the timeSelector and name properties.
+   * @returns The remapped object.
+   */
+  remapTimeFilter(copy: any, f: any): any {
+    // set the min and max properties to the dateTime property if the timeSelector is 'minMax'
+    if (f.timeSelector === 'minMax') {
+      copy.min = copy.dateTime;
+      copy.max = copy.dateTime;
+    }
+
+    // find the keys related to time filter in the copy object
+    const timeKeys = Object.keys(copy).filter((key) => key !== 'timeSelector' && key !== 'name');
+
+    // filter the time keys based on the timeSelector property
+    const filteredTimeKeys = timeKeys.filter((key) => {
+      if (f.timeSelector === 'minMax' || f.timeSelector === 'between') {
+        return key === 'min' || key === 'max';
+      }
+      return key === 'dateTime';
+    });
+
+    // remap the time filter based on the timeSelector property
+    copy = filteredTimeKeys.reduce((timeObj: any, key: string) => {
+      const timeKey =
+        f.timeSelector === 'minMax' || f.timeSelector === 'between'
+          ? key + this.capitalizeFirstLetter(f.name)
+          : f.timeSelector + this.capitalizeFirstLetter(f.name);
+      timeObj[timeKey] = dayjs(copy[key]).unix();
+      return timeObj;
+    }, {});
+
+    // delete the timeSelector property
+    delete copy.timeSelector;
+
+    return copy;
   }
 }

@@ -1,11 +1,13 @@
 <ng-container *transloco="let t">
   <button
     mat-flat-button
+    color="primary"
     [matMenuTriggerFor]="setFilter"
     #childTrigger="matMenuTrigger"
     class="custom-select"
   >
-    <div>{{ t('filterMenu.newFilter') }}</div>
+    <mat-icon>filter_alt</mat-icon>
+    {{ t('filterMenu.newFilter') }}
   </button>
 
   <mat-menu #setFilter="matMenu" class="filter-option">
@@ -20,7 +22,7 @@
     </ng-container>
   </mat-menu>
 
-  <form [formGroup]="filterForm">
+  <div [formGroup]="filterForm">
     <ng-container
       formArrayName="filters"
       *ngFor="let filter of filtersControl; let i = index"
@@ -28,91 +30,103 @@
     >
       <div class="filter">
         <!-- Auto Complete Filter -->
-        <mat-form-field appearance="outline" [formGroupName]="i" *ngSwitchCase="'autoComplete'">
-          <mat-label>{{ t(findFilter(i).label) }}</mat-label>
-          <input
-            matInput
-            [formControlName]="findFilter(i).name"
-            [matAutocomplete]="auto"
-            placeholder="{{ t('filterMenu.pleaseEnter') }} {{ t(findFilter(i).label) }}"
-            maxlength="50"
-          />
-          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-            <mat-option
-              *ngFor="let option of autoCompleteFilteredOptionsAPI[i] | async"
-              [value]="option"
-            >
-              {{ option }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+        <div class="set" [formGroupName]="i" *ngSwitchCase="'autoComplete'">
+          <mat-form-field class="form" appearance="outline">
+            <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+            <input
+              matInput
+              [formControlName]="findFilter(i).name"
+              [matAutocomplete]="auto"
+              placeholder="{{ t('filterMenu.pleaseEnter') }} {{ t(findFilter(i).label) }}"
+              maxlength="50"
+            />
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+              <mat-option
+                *ngFor="let option of autoCompleteFilteredOptionsAPI[i] | async"
+                [value]="option"
+              >
+                {{ option }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onDeleteOneFilter(i, findFilter(i).type)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
 
         <!-- String Filter -->
-        <mat-form-field appearance="outline" [formGroupName]="i" *ngSwitchCase="'string'">
-          <mat-label>{{ t(findFilter(i).label) }}</mat-label>
-          <input
-            matInput
-            [formControlName]="findFilter(i).name"
-            placeholder="{{ t('filterMenu.pleaseEnter') }} {{ t(findFilter(i).label) }}"
-            maxlength="50"
-          />
-        </mat-form-field>
+        <div class="set" [formGroupName]="i" *ngSwitchCase="'string'">
+          <mat-form-field class="form" appearance="outline">
+            <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+            <input
+              matInput
+              [formControlName]="findFilter(i).name"
+              placeholder="{{ t('filterMenu.pleaseEnter') }} {{ t(findFilter(i).label) }}"
+              maxlength="50"
+            />
+          </mat-form-field>
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onDeleteOneFilter(i, findFilter(i).type)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
 
         <!-- Multi Selection Filter -->
-        <mat-form-field appearance="outline" [formGroupName]="i" *ngSwitchCase="'selection'">
-          <mat-label>{{ t(findFilter(i).label) }}</mat-label>
-          <mat-select [formControlName]="findFilter(i).name">
-            <mat-option *ngFor="let option of findFilter(i).options" [value]="option.value">
-              {{ t(option.name) }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Time Filter -->
-        <div class="time-option" [formGroupName]="i" *ngSwitchCase="'time'">
-          <mat-form-field class="selection" appearance="outline">
+        <div class="set" [formGroupName]="i" *ngSwitchCase="'selection'">
+          <mat-form-field class="form" appearance="outline">
             <mat-label>{{ t(findFilter(i).label) }}</mat-label>
-            <mat-select
-              [formControlName]="'timeSelector'"
-              (selectionChange)="timeFilterSelectionChange(i)"
-            >
+            <mat-select [formControlName]="findFilter(i).name">
               <mat-option *ngFor="let option of findFilter(i).options" [value]="option.value">
                 {{ t(option.name) }}
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onDeleteOneFilter(i, findFilter(i).type)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
 
-          <mat-form-field appearance="outline" *ngIf="selectedTimeFilter(i) !== 'between'">
-            <mat-label>{{ t('filterMenu.selectDateTime') }}</mat-label>
-            <input
-              matInput
-              [ngxMatDatetimePicker]="picker_i"
-              placeholder="{{ t('filterMenu.selectDateTime') }}"
-              [formControlName]="'dateTime'"
-            />
-            <mat-datepicker-toggle matSuffix [for]="$any(picker_i)"></mat-datepicker-toggle>
-            <ngx-mat-datetime-picker
-              #picker_i
-              [showSpinners]="true"
-              [stepHour]="1"
-              [stepMinute]="1"
-              [touchUi]="false"
+        <!-- Time Filter -->
+        <div class="set" [formGroupName]="i" *ngSwitchCase="'time'">
+          <div class="time-option">
+            <mat-form-field class="form" appearance="outline">
+              <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+              <mat-select
+                [formControlName]="'timeSelector'"
+                (selectionChange)="timeFilterSelectionChange(i)"
+              >
+                <mat-option *ngFor="let option of findFilter(i).options" [value]="option.value">
+                  {{ t(option.name) }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field
+              class="form"
+              appearance="outline"
+              *ngIf="selectedTimeFilter(i) !== 'between'"
             >
-            </ngx-mat-datetime-picker>
-          </mat-form-field>
-
-          <ng-container *ngIf="selectedTimeFilter(i) === 'between'">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('filterMenu.startDateTime') }}</mat-label>
+              <mat-label>{{ t('filterMenu.selectDateTime') }}</mat-label>
               <input
                 matInput
-                [ngxMatDatetimePicker]="start_i"
-                placeholder="{{ t('filterMenu.startDateTime') }}"
-                [formControlName]="'min'"
+                [ngxMatDatetimePicker]="picker_i"
+                placeholder="{{ t('filterMenu.selectDateTime') }}"
+                [formControlName]="'dateTime'"
               />
-              <mat-datepicker-toggle matSuffix [for]="$any(start_i)"></mat-datepicker-toggle>
+              <mat-datepicker-toggle matSuffix [for]="$any(picker_i)"></mat-datepicker-toggle>
               <ngx-mat-datetime-picker
-                #start_i
+                #picker_i
                 [showSpinners]="true"
                 [stepHour]="1"
                 [stepMinute]="1"
@@ -121,27 +135,65 @@
               </ngx-mat-datetime-picker>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('filterMenu.endDateTime') }}</mat-label>
-              <input
-                matInput
-                [ngxMatDatetimePicker]="end_i"
-                placeholder="{{ t('filterMenu.endDateTime') }}"
-                [formControlName]="'max'"
-              />
-              <mat-datepicker-toggle matSuffix [for]="$any(end_i)"></mat-datepicker-toggle>
-              <ngx-mat-datetime-picker
-                #end_i
-                [showSpinners]="true"
-                [stepHour]="1"
-                [stepMinute]="1"
-                [touchUi]="false"
-              >
-              </ngx-mat-datetime-picker>
-            </mat-form-field>
-          </ng-container>
+            <ng-container *ngIf="selectedTimeFilter(i) === 'between'">
+              <mat-form-field class="form" appearance="outline">
+                <mat-label>{{ t('filterMenu.startDateTime') }}</mat-label>
+                <input
+                  matInput
+                  [ngxMatDatetimePicker]="start_i"
+                  placeholder="{{ t('filterMenu.startDateTime') }}"
+                  [formControlName]="'min'"
+                />
+                <mat-datepicker-toggle matSuffix [for]="$any(start_i)"></mat-datepicker-toggle>
+                <ngx-mat-datetime-picker
+                  #start_i
+                  [showSpinners]="true"
+                  [stepHour]="1"
+                  [stepMinute]="1"
+                  [touchUi]="false"
+                >
+                </ngx-mat-datetime-picker>
+              </mat-form-field>
+
+              <mat-form-field class="form" appearance="outline">
+                <mat-label>{{ t('filterMenu.endDateTime') }}</mat-label>
+                <input
+                  matInput
+                  [ngxMatDatetimePicker]="end_i"
+                  placeholder="{{ t('filterMenu.endDateTime') }}"
+                  [formControlName]="'max'"
+                />
+                <mat-datepicker-toggle matSuffix [for]="$any(end_i)"></mat-datepicker-toggle>
+                <ngx-mat-datetime-picker
+                  #end_i
+                  [showSpinners]="true"
+                  [stepHour]="1"
+                  [stepMinute]="1"
+                  [touchUi]="false"
+                >
+                </ngx-mat-datetime-picker>
+              </mat-form-field>
+            </ng-container>
+          </div>
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onDeleteOneFilter(i, findFilter(i).type)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
         </div>
       </div>
     </ng-container>
-  </form>
+  </div>
+
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onApplyFilter()"
+    class="apply-filter"
+    *ngIf="filtersControl.length > 0"
+  >
+    {{ t('button.apply') }}
+  </button>
 </ng-container>
