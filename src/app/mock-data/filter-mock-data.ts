@@ -54,6 +54,18 @@ export const memberFilters: Filter[] = [
     ],
     isSet: false,
   },
+  {
+    type: 'time',
+    name: 'createdAt',
+    label: 'member.createdAt',
+    options: [
+      { name: 'filterMenu.before', value: 'max' },
+      { name: 'filterMenu.after', value: 'min' },
+      { name: 'filterMenu.at', value: 'minMax' },
+      { name: 'filterMenu.between', value: 'between' },
+    ],
+    isSet: false,
+  },
 ];
 
 export const mockDisctrict: string[] = [

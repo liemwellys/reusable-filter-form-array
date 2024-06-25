@@ -5,6 +5,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { ReusableFilterService } from './reusable-filter.service';
 import { EventEmitter } from '@angular/core';
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-reusable-filter',
@@ -14,7 +15,8 @@ import { EventEmitter } from '@angular/core';
 export class ReusableFilterComponent<T> implements OnInit {
   filterForm: FormGroup;
   isSetFilterName: string[] = [];
-  autoCompletefilteredOptionsAPI: AutoCompleteFilteredOption = {};
+  // autoCompletefilteredOptionsAPI: AutoCompleteFilteredOption = {};
+  autoCompleteFilteredOptionsAPI: Observable<string[]>[] = [];
 
   get filtersControl() {
     return (this.filterForm.get('filters') as FormArray).controls;
@@ -85,9 +87,9 @@ export class ReusableFilterComponent<T> implements OnInit {
       case 'selection':
         this.assignSelectionFilter(filter);
         break;
-      // case 'time':
-      //   this.assignTimeFilter(filter);
-      //   break;
+      case 'time':
+        this.assignTimeFilter(filter);
+        break;
     }
   }
 
@@ -109,7 +111,14 @@ export class ReusableFilterComponent<T> implements OnInit {
    */
   manageAutoCompleteOptionsControlAPI(index: number, controlName: string): void {
     const control = this.filtersControl[index].get(controlName);
-    this.autoCompletefilteredOptionsAPI[index] = control
+    // this.autoCompletefilteredOptionsAPI[index] = control
+    //   ? control.valueChanges.pipe(
+    //       startWith(''),
+    //       debounceTime(300),
+    //       switchMap((value) => this._filterAutoCompleteOptionsMockAPI(value || '', controlName))
+    //     )
+    //   : of([]);
+    this.autoCompleteFilteredOptionsAPI[index] = control
       ? control.valueChanges.pipe(
           startWith(''),
           debounceTime(300),
@@ -133,6 +142,38 @@ export class ReusableFilterComponent<T> implements OnInit {
         return res.filter((option) => option.toLowerCase().includes(filterValue));
       })
     );
+  }
+
+  /**
+   * Retrieves the selected time filter value at the specified index.
+   *
+   * @param index - The index of the filter control.
+   * @returns The selected time filter value (either "max", "min", "minMax", or "between").
+   */
+  selectedTimeFilter(index: number): any {
+    const control = this.filtersControl[index].get('timeSelector') as FormControl;
+    return control.value;
+  }
+
+  /**
+   * Handles the selection change event for the time filter.
+   * Sets the appropriate values for the date and time inputs based on the selected time filter.
+   *
+   * @param index - The index of the selected time filter.
+   */
+  timeFilterSelectionChange(index: number): void {
+    const timeSelector = this.selectedTimeFilter(index);
+    const date = dayjs().startOf('day').toISOString();
+    const dateTime = this.filtersControl[index].get('dateTime') as FormControl;
+    const min = this.filtersControl[index].get('min') as FormControl;
+    const max = this.filtersControl[index].get('max') as FormControl;
+
+    if (timeSelector === 'between') {
+      min.setValue(new Date(date));
+      max.setValue(new Date(Date()));
+    } else {
+      dateTime.setValue(new Date(date));
+    }
   }
 
   /**
@@ -162,6 +203,23 @@ export class ReusableFilterComponent<T> implements OnInit {
   assignSelectionFilter(filter: Filter): void {
     const fg = new FormGroup({
       [filter.name]: new FormControl(filter.options?.[0]?.value, [Validators.required]),
+    });
+    this.filtersControl.push(fg);
+  }
+
+  /**
+   * Assigns a time filter to the component.
+   *
+   * @param filter - The filter to assign.
+   */
+  assignTimeFilter(filter: Filter): void {
+    const newDate = dayjs().startOf('day').toISOString();
+    const fg = new FormGroup({
+      name: new FormControl(filter.name),
+      timeSelector: new FormControl(filter.options?.[0]?.value, [Validators.required]),
+      dateTime: new FormControl(new Date(newDate), [Validators.required]),
+      min: new FormControl(new Date(newDate), [Validators.required]),
+      max: new FormControl(new Date(newDate), [Validators.required]),
     });
     this.filtersControl.push(fg);
   }

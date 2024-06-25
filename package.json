@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-material-components/datetime-picker": "^8.0.0",
     "@angular/animations": "~14.0.0",
     "@angular/cdk": "14.2.7",
     "@angular/common": "~14.0.0",
@@ -22,6 +23,7 @@
     "@angular/platform-browser-dynamic": "~14.0.0",
     "@angular/router": "~14.0.0",
     "@ngneat/transloco": "^4.3.0",
+    "dayjs": "^1.11.11",
     "moment": "^2.18.1",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",

@@ -39,7 +39,7 @@
           />
           <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             <mat-option
-              *ngFor="let option of autoCompletefilteredOptionsAPI[i] | async"
+              *ngFor="let option of autoCompleteFilteredOptionsAPI[i] | async"
               [value]="option"
             >
               {{ option }}
@@ -67,6 +67,80 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
+
+        <!-- Time Filter -->
+        <div class="time-option" [formGroupName]="i" *ngSwitchCase="'time'">
+          <mat-form-field class="selection" appearance="outline">
+            <mat-label>{{ t(findFilter(i).label) }}</mat-label>
+            <mat-select
+              [formControlName]="'timeSelector'"
+              (selectionChange)="timeFilterSelectionChange(i)"
+            >
+              <mat-option *ngFor="let option of findFilter(i).options" [value]="option.value">
+                {{ t(option.name) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="selectedTimeFilter(i) !== 'between'">
+            <mat-label>{{ t('filterMenu.selectDateTime') }}</mat-label>
+            <input
+              matInput
+              [ngxMatDatetimePicker]="picker_i"
+              placeholder="{{ t('filterMenu.selectDateTime') }}"
+              [formControlName]="'dateTime'"
+            />
+            <mat-datepicker-toggle matSuffix [for]="$any(picker_i)"></mat-datepicker-toggle>
+            <ngx-mat-datetime-picker
+              #picker_i
+              [showSpinners]="true"
+              [stepHour]="1"
+              [stepMinute]="1"
+              [touchUi]="false"
+            >
+            </ngx-mat-datetime-picker>
+          </mat-form-field>
+
+          <ng-container *ngIf="selectedTimeFilter(i) === 'between'">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('filterMenu.startDateTime') }}</mat-label>
+              <input
+                matInput
+                [ngxMatDatetimePicker]="start_i"
+                placeholder="{{ t('filterMenu.startDateTime') }}"
+                [formControlName]="'min'"
+              />
+              <mat-datepicker-toggle matSuffix [for]="$any(start_i)"></mat-datepicker-toggle>
+              <ngx-mat-datetime-picker
+                #start_i
+                [showSpinners]="true"
+                [stepHour]="1"
+                [stepMinute]="1"
+                [touchUi]="false"
+              >
+              </ngx-mat-datetime-picker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('filterMenu.endDateTime') }}</mat-label>
+              <input
+                matInput
+                [ngxMatDatetimePicker]="end_i"
+                placeholder="{{ t('filterMenu.endDateTime') }}"
+                [formControlName]="'max'"
+              />
+              <mat-datepicker-toggle matSuffix [for]="$any(end_i)"></mat-datepicker-toggle>
+              <ngx-mat-datetime-picker
+                #end_i
+                [showSpinners]="true"
+                [stepHour]="1"
+                [stepMinute]="1"
+                [touchUi]="false"
+              >
+              </ngx-mat-datetime-picker>
+            </mat-form-field>
+          </ng-container>
+        </div>
       </div>
     </ng-container>
   </form>
