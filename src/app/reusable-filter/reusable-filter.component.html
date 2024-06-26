@@ -4,13 +4,13 @@
     color="primary"
     [matMenuTriggerFor]="setFilter"
     #childTrigger="matMenuTrigger"
-    class="custom-select"
+    class="filter-button"
   >
     <mat-icon>filter_alt</mat-icon>
     {{ t('filterMenu.newFilter') }}
   </button>
 
-  <mat-menu #setFilter="matMenu" class="filter-option">
+  <mat-menu #setFilter="matMenu">
     <ng-container *ngFor="let filter of filters; let i = index">
       <button
         mat-menu-item
@@ -115,7 +115,7 @@
             <mat-form-field
               class="form"
               appearance="outline"
-              *ngIf="selectedTimeFilter(i) !== 'between'"
+              *ngIf="selectedTimeFilter(i) !== 'between' && selectedTimeFilter(i) !== null"
             >
               <mat-label>{{ t('filterMenu.selectDateTime') }}</mat-label>
               <input
@@ -135,7 +135,9 @@
               </ngx-mat-datetime-picker>
             </mat-form-field>
 
-            <ng-container *ngIf="selectedTimeFilter(i) === 'between'">
+            <ng-container
+              *ngIf="selectedTimeFilter(i) === 'between' && selectedTimeFilter(i) !== null"
+            >
               <mat-form-field class="form" appearance="outline">
                 <mat-label>{{ t('filterMenu.startDateTime') }}</mat-label>
                 <input
@@ -187,13 +189,17 @@
     </ng-container>
   </div>
 
-  <button
-    mat-flat-button
-    color="primary"
-    (click)="onApplyFilter()"
-    class="apply-filter"
-    *ngIf="filtersControl.length > 0"
-  >
-    {{ t('button.apply') }}
-  </button>
+  <div class="confirm-buttons">
+    <button mat-stroked-button (click)="onClearFilter()" *ngIf="filtersControl.length > 0">
+      {{ t('filterMenu.clear') }}
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onApplyFilter()"
+      *ngIf="filtersControl.length > 0"
+    >
+      {{ t('button.apply') }}
+    </button>
+  </div>
 </ng-container>

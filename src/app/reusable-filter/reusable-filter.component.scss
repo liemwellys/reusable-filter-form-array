@@ -1,3 +1,7 @@
+.filter-button {
+  margin-bottom: 8px;
+}
+
 .filter {
   display: flex;
   flex-direction: row;
@@ -16,4 +20,11 @@
       flex-direction: column;
     }
   }
+}
+
+.confirm-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 8px;
 }

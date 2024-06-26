@@ -1,18 +1,25 @@
-import { ChangeDetectorRef, Component, Input, OnInit, Output } from '@angular/core';
-import { Filter } from '../models/reusable-filter.model';
-import { MatMenuTrigger } from '@angular/material/menu';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { debounceTime, map, Observable, of, startWith, switchMap } from 'rxjs';
-import { ReusableFilterService } from './reusable-filter.service';
-import { EventEmitter } from '@angular/core';
+import { MatMenuTrigger } from '@angular/material/menu';
 import dayjs from 'dayjs';
+import { debounceTime, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { Filter } from '../models/reusable-filter.model';
+import { ReusableFilterService } from './reusable-filter.service';
 
 @Component({
   selector: 'app-reusable-filter',
   templateUrl: './reusable-filter.component.html',
   styleUrls: ['./reusable-filter.component.scss'],
 })
-export class ReusableFilterComponent<T> implements OnInit {
+export class ReusableFilterComponent<T> implements OnInit, OnDestroy {
   filterForm: FormGroup;
   isSetFilterName: string[] = [];
   autoCompleteFilteredOptionsAPI: Observable<string[]>[] = [];
@@ -48,6 +55,10 @@ export class ReusableFilterComponent<T> implements OnInit {
     this.filterForm = new FormGroup({
       filters: new FormArray([]),
     });
+  }
+
+  ngOnDestroy(): void {
+    this.removeFilterConfig();
   }
 
   /**
@@ -269,7 +280,6 @@ export class ReusableFilterComponent<T> implements OnInit {
    * @param filter - The filter to assign.
    */
   assignTimeFilter(filter: Filter): void {
-    const newDate = dayjs().startOf('day').toISOString();
     const fg = new FormGroup({
       name: new FormControl(filter.name),
       timeSelector: new FormControl(null, [Validators.required]),
@@ -303,8 +313,8 @@ export class ReusableFilterComponent<T> implements OnInit {
       return { ...finalFilterObj, ...copy };
     }, {});
 
+    // emit the final filter object to the parent component
     this.applyFilter.emit(finalFilter);
-    console.log(finalFilter);
   }
 
   /**
@@ -345,5 +355,20 @@ export class ReusableFilterComponent<T> implements OnInit {
     delete copy.timeSelector;
 
     return copy;
+  }
+
+  /** Clears the filter configuration and emits nothing to parent component. */
+  onClearFilter(): void {
+    this.removeFilterConfig();
+    this.applyFilter.emit();
+  }
+
+  /** Removes the filter configuration by resetting the filters and form controls. */
+  removeFilterConfig(): void {
+    this.filters.forEach((filter) => (filter.isSet = false));
+    this.isSetFilterName = [];
+    this.filterForm.setControl('filters', new FormArray([]));
+    this.filterForm.reset();
+    this.autoCompleteFilteredOptionsAPI = [];
   }
 }
