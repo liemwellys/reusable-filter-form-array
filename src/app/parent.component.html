@@ -1,6 +1,7 @@
 <app-reusable-filter
   [tableName]="'member'"
   [filters]="filters"
+  [timeStampFilters]="timeStampFilters"
   (applyFilter)="receiveFilter($event)"
 ></app-reusable-filter>
 <div *ngIf="filterObject">

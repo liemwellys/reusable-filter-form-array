@@ -72,6 +72,33 @@ export class ReusableFilterComponent<T> implements OnInit, OnDestroy {
   }
 
   /**
+   * Checks if there are any invalid controls in the filtersControl array.
+   * Returns true if there are any invalid controls, otherwise returns false.
+   */
+  isInvalidFilterControls(): boolean {
+    return this.filtersControl.some((control, index) => {
+      // check if the filter is a time filter & if it is a between time filter
+      const isTimeFilter = this.timeStampFilters.includes(this.isSetFilterName[index]);
+      const isBetweenTimeFilter = isTimeFilter && this.selectedTimeFilter(index) === 'between';
+
+      // check if the dateTime, min, and max controls have errors
+      const isDateTimeControlError = control.get('dateTime')?.errors !== null;
+      const isStartTimeControlError = control.get('min')?.errors !== null;
+      const isEndTimeControlError = control.get('max')?.errors !== null;
+
+      // check if the filter control has errors
+      const isFilterControlError =
+        !isTimeFilter && control.get(this.isSetFilterName[index])?.errors !== null;
+
+      return isTimeFilter
+        ? isBetweenTimeFilter
+          ? isStartTimeControlError || isEndTimeControlError
+          : isDateTimeControlError
+        : isFilterControlError;
+    });
+  }
+
+  /**
    * Sets the filter for the specified index and updates the component state.
    *
    * @param setFilterTrigger - The MatMenuTrigger used to close the filter menu.

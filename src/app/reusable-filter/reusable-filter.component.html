@@ -197,6 +197,7 @@
       mat-flat-button
       color="primary"
       (click)="onApplyFilter()"
+      [disabled]="isInvalidFilterControls()"
       *ngIf="filtersControl.length > 0"
     >
       {{ t('button.apply') }}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { memberFilters } from './mock-data/filter-mock-data';
+import { memberFilters, memberTimeStampFilters } from './mock-data/filter-mock-data';
 
 /**
  * @title Highlight the first autocomplete option
@@ -11,6 +11,7 @@ import { memberFilters } from './mock-data/filter-mock-data';
 })
 export class ParentComponent implements OnInit {
   filters = memberFilters;
+  timeStampFilters = memberTimeStampFilters;
   filterObject: unknown;
 
   ngOnInit() {}
