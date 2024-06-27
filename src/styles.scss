@@ -1,3 +1,26 @@
+@use "@angular/material" as mat;
+@use "@ng-matero/extensions" as mtx;
+
+// Define custom color palettes
+$primary-palette: mat.define-palette(mat.$indigo-palette);
+$accent-palette: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$warn-palette: mat.define-palette(mat.$red-palette);
+
+// Define the default (light) theme using the custom palettes
+$light-theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette,
+  )
+));
+
+// Include the default theme styles for Angular Material components and extensions
+:root {
+  @include mat.all-component-themes($light-theme);
+  @include mtx.all-component-themes($light-theme);
+}
+
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   margin: 0;

@@ -120,19 +120,24 @@
               <mat-label>{{ t('filterMenu.selectDateTime') }}</mat-label>
               <input
                 matInput
-                [ngxMatDatetimePicker]="picker_i"
+                [mtxDatetimepicker]="picker_i"
                 placeholder="{{ t('filterMenu.selectDateTime') }}"
                 [formControlName]="'dateTime'"
               />
-              <mat-datepicker-toggle matSuffix [for]="$any(picker_i)"></mat-datepicker-toggle>
-              <ngx-mat-datetime-picker
+              <mtx-datetimepicker-toggle
+                matSuffix
+                [for]="$any(picker_i)"
+              ></mtx-datetimepicker-toggle>
+              <mtx-datetimepicker
                 #picker_i
-                [showSpinners]="true"
-                [stepHour]="1"
-                [stepMinute]="1"
+                [type]="'datetime'"
+                [mode]="'auto'"
+                [multiYearSelector]="false"
+                [startView]="'month'"
+                [twelvehour]="false"
                 [touchUi]="false"
-              >
-              </ngx-mat-datetime-picker>
+                [timeInput]="true"
+              ></mtx-datetimepicker>
             </mat-form-field>
 
             <ng-container
@@ -142,38 +147,48 @@
                 <mat-label>{{ t('filterMenu.startDateTime') }}</mat-label>
                 <input
                   matInput
-                  [ngxMatDatetimePicker]="start_i"
+                  [mtxDatetimepicker]="start_i"
                   placeholder="{{ t('filterMenu.startDateTime') }}"
                   [formControlName]="'min'"
                 />
-                <mat-datepicker-toggle matSuffix [for]="$any(start_i)"></mat-datepicker-toggle>
-                <ngx-mat-datetime-picker
+                <mtx-datetimepicker-toggle
+                  matSuffix
+                  [for]="$any(start_i)"
+                ></mtx-datetimepicker-toggle>
+                <mtx-datetimepicker
                   #start_i
-                  [showSpinners]="true"
-                  [stepHour]="1"
-                  [stepMinute]="1"
+                  [type]="'datetime'"
+                  [mode]="'auto'"
+                  [multiYearSelector]="false"
+                  [startView]="'month'"
+                  [twelvehour]="false"
                   [touchUi]="false"
-                >
-                </ngx-mat-datetime-picker>
+                  [timeInput]="true"
+                ></mtx-datetimepicker>
               </mat-form-field>
 
               <mat-form-field class="form" appearance="outline">
                 <mat-label>{{ t('filterMenu.endDateTime') }}</mat-label>
                 <input
                   matInput
-                  [ngxMatDatetimePicker]="end_i"
+                  [mtxDatetimepicker]="end_i"
                   placeholder="{{ t('filterMenu.endDateTime') }}"
                   [formControlName]="'max'"
                 />
-                <mat-datepicker-toggle matSuffix [for]="$any(end_i)"></mat-datepicker-toggle>
-                <ngx-mat-datetime-picker
+                <mtx-datetimepicker-toggle
+                  matSuffix
+                  [for]="$any(end_i)"
+                ></mtx-datetimepicker-toggle>
+                <mtx-datetimepicker
                   #end_i
-                  [showSpinners]="true"
-                  [stepHour]="1"
-                  [stepMinute]="1"
+                  [type]="'datetime'"
+                  [mode]="'auto'"
+                  [multiYearSelector]="false"
+                  [startView]="'month'"
+                  [twelvehour]="false"
                   [touchUi]="false"
-                >
-                </ngx-mat-datetime-picker>
+                  [timeInput]="true"
+                ></mtx-datetimepicker>
               </mat-form-field>
             </ng-container>
           </div>
