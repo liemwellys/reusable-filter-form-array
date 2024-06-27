@@ -2,7 +2,7 @@
 
 This project is demo for reusable filter template component used to filter a table record that allows users to build dynamic filters with various input types. It leverages Angular's reactive forms and Form Arrays to create a flexible and adaptable solution.
 
-Developed using Angular and Angular Material version 14.
+Developed using Angular and Angular Material v14.
 
 ## Features
 
@@ -37,6 +37,7 @@ export const memberfilters: Filter[] = [
     name: 'name',
     label: 'member.name',
     isSet: false,
+    // autoCompleteUrl: '/path/to/data/retrieval/on/configured/API/provider'
   },
   {
     type: 'string',
@@ -49,6 +50,7 @@ export const memberfilters: Filter[] = [
     name: 'district',
     label: 'member.district',
     isSet: false,
+    // autoCompleteUrl: '/path/to/data/retrieval/on/configured/API/provider'
   },
   {
     type: 'selection',
@@ -62,24 +64,6 @@ export const memberfilters: Filter[] = [
       { name: 'Liverpool', value: 'Liverpool' },
       { name: 'Newcastle', value: 'Newcastle' },
       { name: 'Nottingham', value: 'Nottingham' },
-      { name: 'Sheffield', value: 'Sheffield' },
-      { name: 'Bristol', value: 'Bristol' },
-      { name: 'Leicester', value: 'Leicester' },
-      { name: 'Brighton', value: 'Brighton' },
-      { name: 'Plymouth', value: 'Plymouth' },
-      { name: 'Stoke-on-Trent', value: 'Stoke-on-Trent' },
-      { name: 'Wolverhampton', value: 'Wolverhampton' },
-      { name: 'Derby', value: 'Derby' },
-      { name: 'Sunderland', value: 'Sunderland' },
-      { name: 'Southampton', value: 'Southampton' },
-      { name: 'Portsmouth', value: 'Portsmouth' },
-      { name: 'York', value: 'York' },
-      { name: 'Reading', value: 'Reading' },
-      { name: 'Cambridge', value: 'Cambridge' },
-      { name: 'Oxford', value: 'Oxford' },
-      { name: 'Norwich', value: 'Norwich' },
-      { name: 'Exeter', value: 'Exeter' },
-      { name: 'Lancaster', value: 'Lancaster' },
     ],
     isSet: false,
   },
@@ -110,7 +94,7 @@ export const memberTimeStampFilters = ['createdAt'];
 ></app-reusable-filter>
 ```
 
-- optional: Bind a table name to retrieve preset mock data since the current project has no API provider. In this case the available mock table name is `member`. The function for data retrieval from API provider has already set-up in reusable-filter.service.ts and need to be configured based on project setup.
+- **Optional:** Bind a table name to retrieve preset mock data. Since the current project does not have an API provider, the mock table name is set to `member` and implementing mock data retrieval using [`_filterAutoCompleteOptionsMockAPI`](src/app/reusable-filter/reusable-filter.component.ts#L231). The function for data retrieval from the API provider has already been set up in [`_filterAutoCompleteOptionsAPI`](src/app/reusable-filter/reusable-filter.component.ts#L211) and needs to be configured based on your project setup.
 
 ```html
 <app-reusable-filter ... [table]="'member'"></app-reusable-filter>
@@ -163,3 +147,37 @@ The JSON object generated from these filter values is as follows:
   "maxCreatedAt": 1719417600
 }
 ```
+
+For the time filter, the filter key's name will be the time constraint selection followed by the filter name. In this case, since the user selected the "Before" time constraint and the filter name is "createdAt", the key's name will be `maxCreatedAt`.
+
+The other possible keys based on the user's selection are as follows:
+
+- After: `minCreatedAt`
+
+```json
+{
+  "minCreatedAt": 1719417600
+}
+```
+
+- At: `minCreatedAt` and `maxCreatedAt`
+
+```json
+{
+  "minCreatedAt": 1719417600,
+  "maxCreatedAt": 1719417600
+}
+```
+
+- Between: `minCreatedAt` and `maxCreatedAt`
+
+```json
+{
+  "minCreatedAt": 1719417600,
+  "maxCreatedAt": 1719489367
+}
+```
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
