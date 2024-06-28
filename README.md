@@ -27,7 +27,7 @@ npm install --no-save
 
 ## Filter Usage & Configuration
 
-1. Prepare a filter config & a timestamp filter config.
+1. Prepare a filter config & a timestamp filter config. In this demo, the sample config is available on this [file](src/app/mock-data/filter-mock-data.ts) and imported to [ParentComponent](src/app/parent.component.ts#L12).
 
 ```typescript
 // filter config
@@ -97,7 +97,7 @@ export const memberTimeStampFilters = ['createdAt'];
 - **Optional:** Bind a table name to retrieve preset mock data. Since the current project does not have an API provider, the mock table name is set to `member` and implementing mock data retrieval using [`_filterAutoCompleteOptionsMockAPI`](src/app/reusable-filter/reusable-filter.component.ts#L231). The function for data retrieval from the API provider has already been set up in [`_filterAutoCompleteOptionsAPI`](src/app/reusable-filter/reusable-filter.component.ts#L211) and needs to be configured based on your project setup.
 
 ```html
-<app-reusable-filter ... [table]="'member'"></app-reusable-filter>
+<app-reusable-filter ... [tableName]="'member'"></app-reusable-filter>
 ```
 
 3. Add a variable & method in parent component for store the emitted filter object from reusable filter component.
